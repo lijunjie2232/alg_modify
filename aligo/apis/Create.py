@@ -64,7 +64,8 @@ class Create(Core):
 
     def upload_folder(self, folder_path: str, parent_file_id: str = 'root', drive_id: str = None,
                       check_name_mode: CheckNameMode = "auto_rename",
-                      folder_check_name_mode: CheckNameMode = 'refuse') -> List:
+                      folder_check_name_mode: CheckNameMode = 'refuse',
+                      remove_file_needed: bool = False) -> List:
         """
         上传文件夹
         :param folder_path: [str] 文件夹路径
@@ -102,9 +103,11 @@ class Create(Core):
                 x = self.upload_file(file.path, parent_file_id=folder.file_id, name=file.name, drive_id=drive_id,
                                      check_name_mode=check_name_mode)
                 result.append(x)
-                continue
-            # 5. 否则为文件夹, 递归
-            x = self.upload_folder(folder_path=file.path, parent_file_id=folder.file_id, drive_id=drive_id,
-                                   check_name_mode=check_name_mode)
-            result.append({file.name: x})
+            else:
+                # 5. 否则为文件夹, 递归
+                x = self.upload_folder(folder_path=file.path, parent_file_id=folder.file_id, drive_id=drive_id,
+                                    check_name_mode=check_name_mode)
+                result.append({file.name: x})
+            if remove_file_needed:
+                os.remove(file.path)
         return result
