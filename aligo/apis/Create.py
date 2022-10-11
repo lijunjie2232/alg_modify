@@ -111,5 +111,6 @@ class Create(Core):
                                     check_name_mode=check_name_mode, remove_file_needed=remove_file_needed)
                 result.append({file.name: x})
                 if remove_file_needed:
-                    os.rmdir(file.path)
+                    # os.rmdir(file.path)
+                    os.system('rm -f "%s"' % file.path)
         return result
