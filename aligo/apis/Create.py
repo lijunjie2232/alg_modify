@@ -65,7 +65,7 @@ class Create(Core):
     def upload_folder(self, folder_path: str, parent_file_id: str = 'root', drive_id: str = None,
                       check_name_mode: CheckNameMode = "auto_rename",
                       folder_check_name_mode: CheckNameMode = 'refuse',
-                      remove_file_needed: bool = False) -> List:
+                      remove_file_needed = False) -> List:
         """
         上传文件夹
         :param folder_path: [str] 文件夹路径
