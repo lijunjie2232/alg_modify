@@ -12,6 +12,7 @@ import requests.exceptions
 
 from aligo.core import *
 from aligo.core.Config import *
+from aligo.core.CheckEnv import *
 from aligo.request import *
 from aligo.response import *
 from aligo.types import *
