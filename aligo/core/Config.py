@@ -27,6 +27,7 @@ V2_DRIVE_LIST_MY_DRIVES = '/v2/drive/list_my_drives'
 V2_DATABOX_GET_PERSONAL_INFO = '/v2/databox/get_personal_info'
 V2_DATABOX_GET_AUDIO_PLAY_INFO = '/v2/databox/get_audio_play_info'
 V2_DATABOX_GET_VIDEO_PLAY_INFO = '/v2/databox/get_video_play_info'
+BUSINESS_V1_USERS_VIP_INFO = '/business/v1.0/users/vip/info'
 
 #  文件操作
 V2_FILE_GET = '/v2/file/get'
@@ -74,6 +75,7 @@ ADRIVE_V2_SHARE_LINK_GET_SHARE_BY_ANONYMOUS = '/adrive/v2/share_link/get_share_b
 V2_SHARE_LINK_GET_SHARE_TOKEN = '/v2/share_link/get_share_token'
 V2_FILE_GET_SHARE_LINK_DOWNLOAD_URL = '/v2/file/get_share_link_download_url'
 ADRIVE_V2_SHARE_LINK_EXTRACT_CODE = '/adrive/v2/share_link/extract_code'
+RECOMMEND_V1_SHARELINK_SEARCH = '/recommend/v1/shareLink/search'
 
 # 批量操作
 V3_BATCH = '/v3/batch'

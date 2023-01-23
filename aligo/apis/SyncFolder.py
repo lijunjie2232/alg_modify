@@ -189,8 +189,6 @@ class SyncFolder(Core):
                     self._auth.log.debug(f'云端较新，删除本地，下载云端文件 {f}')
                     os.remove(local_file)
                     self.download_files([remote_file], local_folder)
-                # 在字典中删除remote_file
-                remote_files.pop(f)
             else:
                 # 不存在则直接上传
                 self._auth.log.debug(f'云端不存在，上传本地文件 {f}')
@@ -223,7 +221,8 @@ class SyncFolder(Core):
                     # 如果没有，则创建本地文件夹
                     local_file = os.path.join(local_folder, f)
                     self._auth.log.debug(f'云端是文件夹，本地没有，创建文件夹，并递归 {local_file}')
-                    os.mkdir(local_file)
+                    if not os.path.exists(local_file):
+                        os.mkdir(local_file)
                 self.__sync_folder(local_file, remote_file.file_id, flag, file_filter, ignore_content, follow_delete,
                                    drive_id)
                 continue

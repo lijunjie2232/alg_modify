@@ -18,6 +18,7 @@ import qrcode_terminal
 import requests
 
 from aligo.core.Config import *
+from aligo.error import AligoStatus500
 from aligo.types import *
 from aligo.types.Enum import *
 from .EMail import send_email
@@ -36,11 +37,15 @@ def get_configurations() -> List[str]:
     return list_
 
 
+def logout(name):
+    """退出登录"""
+    (aligo_config_folder / f'{name}.json').unlink()
+
+
 class Auth:
     """..."""
 
     _SLEEP_TIME_SEC = None
-    _SHARE_PWD_DICT = {}
 
     # 发送邮件配置
     _EMAIL_USER = 'aligo_notify@163.com'
@@ -70,6 +75,8 @@ class Auth:
             proxies: Dict = None,
             port: int = None,
             email: Tuple[str, str] = None,
+            request_failed_delay: float = 3,
+            requests_timeout: float = None,
     ):
         """扫描二维码登录"""
 
@@ -82,6 +89,8 @@ class Auth:
             proxies: Dict = None,
             port: int = None,
             email: Tuple[str, str] = None,
+            request_failed_delay: float = 3,
+            requests_timeout: float = None,
     ):
         """refresh_token 登录"""
 
@@ -94,6 +103,9 @@ class Auth:
             proxies: Dict = None,
             port: int = None,
             email: Tuple[str, str] = None,
+            request_failed_delay: float = 3,
+            requests_timeout: float = None,
+            login_timeout: float = None,
     ):
         """登录验证
 
@@ -106,6 +118,9 @@ class Auth:
         :param email: (可选) 发送扫码登录邮件 ("接收邮件的邮箱地址", "防伪字符串"). 提供此值时，将不再弹出或打印二维码
             关于防伪字符串: 为了方便大家使用, aligo 自带公开邮箱, 省去邮箱配置的麻烦.
                         所以收到登录邮件后, 一定要对比确认防伪字符串和你设置一致才可扫码登录, 否则将导致: 包括但不限于云盘文件泄露.
+        :param request_failed_delay: 请求失败后，延迟时间，单位：秒
+        :param requests_timeout: same as requests timeout
+        :param login_timeout: 登录超时时间，单位：秒
         """
         self._name_name = name
         self._name = aligo_config_folder.joinpath(f'{name}.json')
@@ -113,6 +128,9 @@ class Auth:
         self._webServer: HTTPServer = None  # type: ignore
         self._email = email
         self.log = logging.getLogger(f'{__name__}:{name}')
+        self._request_failed_delay = request_failed_delay
+        self._requests_timeout = requests_timeout
+        self._login_timeout = LoginTimeout(login_timeout)
 
         fmt = f'%(asctime)s.%(msecs)03d {name}.%(levelname)s %(message)s'
 
@@ -167,7 +185,7 @@ class Auth:
 
         if self._name.exists():
             self.log.info(f'加载配置文件 {self._name}')
-            self.token = DataClass.fill_attrs(Token, json.load(self._name.open()))
+            self.token = DataClass.fill_attrs(Token, json.load(self._name.open(encoding='utf8')))
         else:
             self.log.info('登录方式 扫描二维码')
             self._login()
@@ -180,7 +198,7 @@ class Auth:
     def _save(self):
         """保存配置文件"""
         self.log.info(f'保存配置文件 {self._name}')
-        json.dump(asdict(self.token), self._name.open('w'))
+        json.dump(asdict(self.token), self._name.open('w', encoding='utf8'))
 
     # noinspection PyPep8Naming
     def _login(self):
@@ -249,6 +267,7 @@ class Auth:
                 self.log.warning('未知错误 可能二维码已经过期')
                 self.error_log_exit(response)
             time.sleep(3)
+            self._login_timeout.check_timeout()
 
     def _refresh_token(self, refresh_token=None, loop_call: bool = False):
         """刷新 token"""
@@ -296,10 +315,16 @@ class Auth:
 
         response = None
         for i in range(1, 6):
-            response = self.session.request(
-                method=method, url=url, params=params, data=data,
-                headers=headers, verify=self._VERIFY_SSL, json=body
-            )
+            try:
+                response = self.session.request(
+                    method=method, url=url, params=params, data=data,
+                    headers=headers, verify=self._VERIFY_SSL, json=body, timeout=self._requests_timeout
+                )
+            except requests.exceptions.ConnectionError as e:
+                self.log.warning(e)
+                time.sleep(self._request_failed_delay)
+                continue
+
             status_code = response.status_code
             self._log_response(response)
 
@@ -309,7 +334,7 @@ class Auth:
                 else:
                     # 刷新 share_token
                     share_id = body['share_id']
-                    share_pwd = self._SHARE_PWD_DICT[share_id]
+                    share_pwd = body['share_pwd']
                     r = self.post(
                         V2_SHARE_LINK_GET_SHARE_TOKEN,
                         body={
@@ -321,14 +346,17 @@ class Auth:
                     headers['x-share-token'].share_token = share_token
                 continue
 
-            if status_code == 429 or status_code == 500:
+            if status_code == 429:
                 if self._SLEEP_TIME_SEC is None:
                     sleep_int = 5 ** (i % 4)
                 else:
                     sleep_int = self._SLEEP_TIME_SEC
-                self.log.warning(f'被限制了 暂停 {sleep_int} 秒')
+                self.log.warning(f'请求太频繁，暂停 {sleep_int} 秒钟')
                 time.sleep(sleep_int)
                 continue
+
+            if status_code == 500:
+                raise AligoStatus500(response.content)
 
             return response
 

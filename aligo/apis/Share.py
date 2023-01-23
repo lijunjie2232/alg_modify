@@ -1,4 +1,8 @@
 """分享相关"""
+<<<<<<< HEAD
+=======
+import warnings
+>>>>>>> 2c91fd05b3ad42b8b499043860adc52342453309
 from typing import List, overload
 
 from aligo.core import *
@@ -8,6 +12,16 @@ from aligo.types import *
 from aligo.types.Enum import *
 
 
+<<<<<<< HEAD
+=======
+def _deprecation_warning(kwargs):
+    if 'share_id' in kwargs:
+        kwargs.pop('share_id')
+        warnings.warn('share 相关方法已删除 `share_id` 参数，因为 share_token 已包含了 share_id 信息',
+                      DeprecationWarning, stacklevel=3)
+
+
+>>>>>>> 2c91fd05b3ad42b8b499043860adc52342453309
 class Share(Core):
     """..."""
 
@@ -200,14 +214,20 @@ class Share(Core):
     @overload
     def get_share_file_list(
             self,
+<<<<<<< HEAD
             share_id: str,
+=======
+>>>>>>> 2c91fd05b3ad42b8b499043860adc52342453309
             share_token: GetShareTokenResponse,
             parent_file_id: str = 'root',
             **kwargs
     ) -> List[BaseShareFile]:
         """
         官方：获取分享文件列表
+<<<<<<< HEAD
         :param share_id: [必选] 分享id
+=======
+>>>>>>> 2c91fd05b3ad42b8b499043860adc52342453309
         :param share_token: [必选] 分享token
         :param parent_file_id:
         :param kwargs: [可选] 其他参数
@@ -219,7 +239,11 @@ class Share(Core):
         >>> share = ali.share_file('<file_id>')
         >>> # noinspection PyShadowingNames
         >>> share_token = ali.get_share_token(share.share_id)
+<<<<<<< HEAD
         >>> share_file_list = ali.get_share_file_list(share.share_id, share_token)
+=======
+        >>> share_file_list = ali.get_share_file_list(share_token)
+>>>>>>> 2c91fd05b3ad42b8b499043860adc52342453309
         >>> print(share_file_list)
         """
 
@@ -242,36 +266,56 @@ class Share(Core):
         >>> # noinspection PyShadowingNames
         >>> share_token = ali.get_share_token(share.share_id)
         >>> # noinspection PyShadowingNames
+<<<<<<< HEAD
         >>> body = GetShareFileListRequest(share_id=share.share_id, share_token=share_token.share_token)
         >>> share_file_list = ali.get_share_file_list(body=body)
+=======
+        >>> body = GetShareFileListRequest(share_id=share_token.share_id)
+        >>> share_file_list = ali.get_share_file_list(body=body, share_token=share_token)
+>>>>>>> 2c91fd05b3ad42b8b499043860adc52342453309
         >>> print(share_file_list)
         """
 
     def get_share_file_list(
             self,
+<<<<<<< HEAD
             share_id: str = None,
+=======
+>>>>>>> 2c91fd05b3ad42b8b499043860adc52342453309
             share_token: GetShareTokenResponse = None,
             parent_file_id: str = 'root',
             body: GetShareFileListRequest = None,
             **kwargs
     ) -> List[BaseShareFile]:
         """get_share_file_list"""
+<<<<<<< HEAD
         if body is None:
             body = GetShareFileListRequest(share_id=share_id, parent_file_id=parent_file_id, **kwargs)
+=======
+        _deprecation_warning(kwargs)
+        if body is None:
+            body = GetShareFileListRequest(share_id=share_token.share_id, parent_file_id=parent_file_id, **kwargs)
+>>>>>>> 2c91fd05b3ad42b8b499043860adc52342453309
         result = self._core_get_share_file_list(body, share_token)
         return list(result)
 
     @overload
     def get_share_file(
             self,
+<<<<<<< HEAD
             share_id: str,
+=======
+>>>>>>> 2c91fd05b3ad42b8b499043860adc52342453309
             file_id: str,
             share_token: GetShareTokenResponse,
             **kwargs
     ) -> BaseShareFile:
         """
         官方：获取分享文件
+<<<<<<< HEAD
         :param share_id: [必选] 分享id
+=======
+>>>>>>> 2c91fd05b3ad42b8b499043860adc52342453309
         :param file_id: [必选] 文件id
         :param share_token: [必选] 分享token
         :param kwargs: [可选] 其他参数
@@ -283,7 +327,11 @@ class Share(Core):
         >>> share = ali.share_file('<file_id>')
         >>> # noinspection PyShadowingNames
         >>> share_token = ali.get_share_token(share.share_id)
+<<<<<<< HEAD
         >>> share_file = ali.get_share_file(share.share_id, share.file_id, share_token)
+=======
+        >>> share_file = ali.get_share_file(share.file_id, share_token)
+>>>>>>> 2c91fd05b3ad42b8b499043860adc52342453309
         >>> print(share_file)
         """
 
@@ -302,35 +350,55 @@ class Share(Core):
         >>> # noinspection PyShadowingNames
         >>> share_token = ali.get_share_token(share.share_id)
         >>> # noinspection PyShadowingNames
+<<<<<<< HEAD
         >>> body = GetShareFileRequest(share_id=share.share_id, file_id=share.file_id, share_token=share_token.share_token)
         >>> share_file = ali.get_share_file(body=body)
+=======
+        >>> body = GetShareFileRequest(share_id=share.share_id, file_id=share.file_id)
+        >>> share_file = ali.get_share_file(body=body, share_token=share_token)
+>>>>>>> 2c91fd05b3ad42b8b499043860adc52342453309
         >>> print(share_file)
         """
 
     def get_share_file(
             self,
+<<<<<<< HEAD
             share_id: str = None,
+=======
+>>>>>>> 2c91fd05b3ad42b8b499043860adc52342453309
             file_id: str = None,
             share_token: GetShareTokenResponse = None,
             body: GetShareFileRequest = None,
             **kwargs
     ) -> BaseShareFile:
         """get_share_file"""
+<<<<<<< HEAD
         if body is None:
             body = GetShareFileRequest(share_id=share_id, file_id=file_id, **kwargs)
+=======
+        _deprecation_warning(kwargs)
+        if body is None:
+            body = GetShareFileRequest(share_id=share_token.share_id, file_id=file_id, **kwargs)
+>>>>>>> 2c91fd05b3ad42b8b499043860adc52342453309
         return self._core_get_share_file(body, share_token)
 
     @overload
     def get_share_link_download_url(
             self,
+<<<<<<< HEAD
             share_id: str,
+=======
+>>>>>>> 2c91fd05b3ad42b8b499043860adc52342453309
             file_id: str,
             share_token: GetShareTokenResponse,
             **kwargs
     ) -> GetShareLinkDownloadUrlResponse:
         """
         官方：获取分享文件下载链接
+<<<<<<< HEAD
         :param share_id: [必选] 分享id
+=======
+>>>>>>> 2c91fd05b3ad42b8b499043860adc52342453309
         :param file_id: [必选] 文件id
         :param share_token: [必选] 分享token
         :param kwargs: [可选] 其他参数
@@ -342,7 +410,11 @@ class Share(Core):
         >>> share = ali.share_file('<file_id>')
         >>> # noinspection PyShadowingNames
         >>> share_token = ali.get_share_token(share.share_id)
+<<<<<<< HEAD
         >>> share_link_download_url = ali.get_share_link_download_url(share.share_id, share.file_id, share_token)
+=======
+        >>> share_link_download_url = ali.get_share_link_download_url(share.file_id, share_token)
+>>>>>>> 2c91fd05b3ad42b8b499043860adc52342453309
         >>> print(share_link_download_url)
         """
 
@@ -365,28 +437,45 @@ class Share(Core):
         >>> # noinspection PyShadowingNames
         >>> share_token = ali.get_share_token(share.share_id)
         >>> # noinspection PyShadowingNames
+<<<<<<< HEAD
         >>> body = GetShareLinkDownloadUrlRequest(share_id=share.share_id, file_id=share.file_id, share_token=share_token.share_token)
         >>> share_link_download_url = ali.get_share_link_download_url(body=body)
+=======
+        >>> body = GetShareLinkDownloadUrlRequest(share_id=share.share_id, file_id=share.file_id)
+        >>> share_link_download_url = ali.get_share_link_download_url(body=body, share_token=share_token)
+>>>>>>> 2c91fd05b3ad42b8b499043860adc52342453309
         >>> print(share_link_download_url)
         """
 
     def get_share_link_download_url(
             self,
+<<<<<<< HEAD
             share_id: str = None,
+=======
+>>>>>>> 2c91fd05b3ad42b8b499043860adc52342453309
             file_id: str = None,
             share_token: GetShareTokenResponse = None,
             body: GetShareLinkDownloadUrlRequest = None,
             **kwargs
     ) -> GetShareLinkDownloadUrlResponse:
         """get_share_link_download_url"""
+<<<<<<< HEAD
         if body is None:
             body = GetShareLinkDownloadUrlRequest(share_id=share_id, file_id=file_id, **kwargs)
+=======
+        _deprecation_warning(kwargs)
+        if body is None:
+            body = GetShareLinkDownloadUrlRequest(share_id=share_token.share_id, file_id=file_id, **kwargs)
+>>>>>>> 2c91fd05b3ad42b8b499043860adc52342453309
         return self._core_get_share_link_download_url(body, share_token)
 
     @overload
     def share_file_saveto_drive(
             self,
+<<<<<<< HEAD
             share_id: str,
+=======
+>>>>>>> 2c91fd05b3ad42b8b499043860adc52342453309
             file_id: str,
             share_token: GetShareTokenResponse,
             to_parent_file_id: str = 'root',
@@ -396,7 +485,10 @@ class Share(Core):
     ) -> ShareFileSaveToDriveResponse:
         """
         官方：保存分享文件到指定的网盘
+<<<<<<< HEAD
         :param share_id: [必选] 分享id
+=======
+>>>>>>> 2c91fd05b3ad42b8b499043860adc52342453309
         :param file_id: [必选] 文件id
         :param share_token: [必选] 分享token
         :param to_parent_file_id: [必选] 目标父文件夹id，默认为根目录
@@ -411,7 +503,11 @@ class Share(Core):
         >>> share = ali.share_file('<file_id>')
         >>> # noinspection PyShadowingNames
         >>> share_token = ali.get_share_token(share.share_id)
+<<<<<<< HEAD
         >>> share_file_saveto_drive = ali.share_file_saveto_drive(share.share_id, share.file_id, share_token)
+=======
+        >>> share_file_saveto_drive = ali.share_file_saveto_drive(share.file_id, share_token)
+>>>>>>> 2c91fd05b3ad42b8b499043860adc52342453309
         >>> print(share_file_saveto_drive)
         """
 
@@ -434,14 +530,22 @@ class Share(Core):
         >>> # noinspection PyShadowingNames
         >>> share_token = ali.get_share_token(share.share_id)
         >>> # noinspection PyShadowingNames
+<<<<<<< HEAD
         >>> body = ShareFileSaveToDriveRequest(share_id=share.share_id, file_id=share.file_id, share_token=share_token.share_token)
         >>> share_file_saveto_drive = ali.share_file_saveto_drive(body=body)
+=======
+        >>> body = ShareFileSaveToDriveRequest(share_id=share.share_id, file_id=share.file_id)
+        >>> share_file_saveto_drive = ali.share_file_saveto_drive(body=body,share_token=share_token)
+>>>>>>> 2c91fd05b3ad42b8b499043860adc52342453309
         >>> print(share_file_saveto_drive)
         """
 
     def share_file_saveto_drive(
             self,
+<<<<<<< HEAD
             share_id: str = None,
+=======
+>>>>>>> 2c91fd05b3ad42b8b499043860adc52342453309
             file_id: str = None,
             share_token: GetShareTokenResponse = None,
             to_parent_file_id: str = 'root',
@@ -451,9 +555,16 @@ class Share(Core):
             **kwargs
     ) -> ShareFileSaveToDriveResponse:
         """share_file_saveto_drive"""
+<<<<<<< HEAD
         if body is None:
             body = ShareFileSaveToDriveRequest(
                 share_id=share_id,
+=======
+        _deprecation_warning(kwargs)
+        if body is None:
+            body = ShareFileSaveToDriveRequest(
+                share_id=share_token.share_id,
+>>>>>>> 2c91fd05b3ad42b8b499043860adc52342453309
                 file_id=file_id,
                 to_parent_file_id=to_parent_file_id,
                 to_drive_id=to_drive_id,
@@ -465,7 +576,10 @@ class Share(Core):
     @overload
     def batch_share_file_saveto_drive(
             self,
+<<<<<<< HEAD
             share_id: str,
+=======
+>>>>>>> 2c91fd05b3ad42b8b499043860adc52342453309
             file_id_list: List[str],
             share_token: GetShareTokenResponse,
             to_parent_file_id: str = 'root',
@@ -474,7 +588,10 @@ class Share(Core):
     ) -> List[BatchShareFileSaveToDriveResponse]:
         """
         官方：批量保存分享文件到指定的网盘
+<<<<<<< HEAD
         :param share_id: [必选] 分享id
+=======
+>>>>>>> 2c91fd05b3ad42b8b499043860adc52342453309
         :param file_id_list: [必选] 文件id列表
         :param share_token: [必选] 分享token
         :param to_parent_file_id: [必选] 目标父文件夹id，默认为根目录
@@ -488,7 +605,11 @@ class Share(Core):
         >>> share = ali.share_file('<file_id>')
         >>> # noinspection PyShadowingNames
         >>> share_token = ali.get_share_token(share.share_id)
+<<<<<<< HEAD
         >>> batch_share_file_saveto_drive = ali.batch_share_file_saveto_drive(share.share_id, share.file_id_list, share_token)
+=======
+        >>> batch_share_file_saveto_drive = ali.batch_share_file_saveto_drive(share.file_id_list, share_token)
+>>>>>>> 2c91fd05b3ad42b8b499043860adc52342453309
         >>> print(batch_share_file_saveto_drive[0].file_id)
         """
 
@@ -510,13 +631,19 @@ class Share(Core):
         >>> # noinspection PyShadowingNames
         >>> share_token = ali.get_share_token(share.share_id)
         >>> # noinspection PyShadowingNames
+<<<<<<< HEAD
         >>> body = BatchShareFileSaveToDriveRequest(share_id=share.share_id, file_id_list=share.file_id_list, share_token=share_token.share_token)
         >>> batch_share_file_saveto_drive = ali.batch_share_file_saveto_drive(body=body)
+=======
+        >>> body = BatchShareFileSaveToDriveRequest(share_id=share.share_id, file_id_list=share.file_id_list)
+        >>> batch_share_file_saveto_drive = ali.batch_share_file_saveto_drive(body=body,share_token=share_token)
+>>>>>>> 2c91fd05b3ad42b8b499043860adc52342453309
         >>> print(batch_share_file_saveto_drive[0].file_id)
         """
 
     def batch_share_file_saveto_drive(
             self,
+<<<<<<< HEAD
             share_id: str = None,
             file_id_list: List[str] = None,
             share_token: GetShareTokenResponse = None,
@@ -533,12 +660,32 @@ class Share(Core):
                 to_parent_file_id=to_parent_file_id,
                 to_drive_id=to_drive_id,
                 **kwargs
+=======
+            file_id_list: List[str] = None,
+            share_token: GetShareTokenResponse = None,
+            to_parent_file_id: str = 'root',
+            auto_rename: bool = True,
+            to_drive_id: str = None,
+            body: BatchShareFileSaveToDriveRequest = None,
+            **kwargs,
+    ) -> List[BatchShareFileSaveToDriveResponse]:
+        """batch_share_file_saveto_drive"""
+        _deprecation_warning(kwargs)
+        if body is None:
+            body = BatchShareFileSaveToDriveRequest(
+                share_id=share_token.share_id,
+                file_id_list=file_id_list,
+                to_parent_file_id=to_parent_file_id,
+                auto_rename=auto_rename,
+                to_drive_id=to_drive_id,
+>>>>>>> 2c91fd05b3ad42b8b499043860adc52342453309
             )
         result = self._core_batch_share_file_saveto_drive(body, share_token)
         return list(result)
 
     def share_file_save_all_to_drive(
             self,
+<<<<<<< HEAD
             share_id: str,
             share_token: GetShareTokenResponse,
             to_parent_file_id: str = 'root',
@@ -550,11 +697,40 @@ class Share(Core):
         file_list = self.get_share_file_list(share_id, share_token)
         result = self.batch_share_file_saveto_drive(
             share_id,
+=======
+            share_token: GetShareTokenResponse,
+            to_parent_file_id: str = 'root',
+            auto_rename: bool = True,
+            to_drive_id: str = None,
+            **kwargs,
+    ) -> List[BatchShareFileSaveToDriveResponse]:
+        """保存所有分享文件到云盘"""
+        _deprecation_warning(kwargs)
+        file_list = self.get_share_file_list(share_token)
+        result = self.batch_share_file_saveto_drive(
+>>>>>>> 2c91fd05b3ad42b8b499043860adc52342453309
             [file.file_id for file in file_list],
             share_token,
             to_parent_file_id=to_parent_file_id,
             to_drive_id=to_drive_id,
+<<<<<<< HEAD
             overwrite=overwrite,
             auto_rename=auto_rename
         )
         return result
+=======
+            auto_rename=auto_rename,
+        )
+        return result
+
+    def search_share_files(self, keyword: str, share_token: GetShareTokenResponse,
+                           order_by: SearchFileOrderBy = 'name', order_direction: OrderDirection = 'DESC',
+                           body: SearchShareFileRequest = None, **kwargs) -> List[BaseShareFile]:
+        """在分享中搜索文件"""
+        _deprecation_warning(kwargs)
+        if body is None:
+            body = SearchShareFileRequest(share_id=share_token.share_id, keyword=keyword,
+                                          order_by=f'{order_by} {order_direction}', **kwargs)
+        result = self._core_search_share_files(body, share_token)
+        return list(result)
+>>>>>>> 2c91fd05b3ad42b8b499043860adc52342453309

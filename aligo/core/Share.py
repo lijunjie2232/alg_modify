@@ -67,9 +67,10 @@ class Share(BaseAligo):
     def _core_get_share_token(self, body: GetShareTokenRequest) -> GetShareTokenResponse:
         """..."""
         # noinspection PyProtectedMember
-        Auth._SHARE_PWD_DICT[body.share_id] = body.share_pwd
         response = self._post(V2_SHARE_LINK_GET_SHARE_TOKEN, body=body, ignore_auth=True)
-        share_token = self._result(response, GetShareTokenResponse)
+        share_token: GetShareTokenResponse = self._result(response, GetShareTokenResponse)
+        share_token.share_id = body.share_id
+        share_token.share_pwd = body.share_pwd
         return share_token
 
     def _core_get_share_file_list(
@@ -140,7 +141,6 @@ class Share(BaseAligo):
                             share_id=body.share_id,
                             to_parent_file_id=body.to_parent_file_id,
                             to_drive_id=body.to_drive_id,
-                            overwrite=body.overwrite,
                             auto_rename=body.auto_rename,
                         )),
                         "headers": {
@@ -159,8 +159,25 @@ class Share(BaseAligo):
                 return
 
             for batch in response.json()['responses']:
-                i = BatchSubResponse(**batch)
+                i = DataClass.fill_attrs(BatchSubResponse, batch)
                 if i.body:
                     # noinspection PyArgumentList
-                    i.body = BatchShareFileSaveToDriveResponse(**i.body)
+                    i.body = DataClass.fill_attrs(BatchShareFileSaveToDriveResponse, i.body)
                 yield i
+
+    def _core_search_share_files(self, body: SearchShareFileRequest, share_token) -> Iterator[BaseShareFile]:
+        """
+        关于 query 的语法, 参考下段代码
+        {
+            key: "getPDSSearchQuery", value: function () {
+                var n = ['name match "'.concat(this.queryToSearch, '"')];
+                return this.filter && ("folder" === this.filter ? n.push('type = "'.concat(this.filter, '"'))
+                : n.push('category = "'.concat(this.filter, '"'))), n.join(" and ")
+            }
+        }
+        eg: 'name match "epub"'
+        eg: 'name match "epub" and category = "image"'
+        category : BaseFileCategory
+        """
+        yield from self._list_file(
+            RECOMMEND_V1_SHARELINK_SEARCH, body, SearchShareFileResponse, headers={'x-share-token': share_token})

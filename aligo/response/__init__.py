@@ -37,8 +37,10 @@ from .MoveFileToTrashResponse import MoveFileToTrashResponse
 from .RestoreFileResponse import RestoreFileResponse
 from .RewardSpaceResponse import RewardSpaceResponse
 from .SearchFileResponse import SearchFileResponse
+from .SearchShareFileResponse import SearchShareFileResponse
 from .ShareFileSaveToDriveResponse import ShareFileSaveToDriveResponse
 from .ShareItemInfo import ShareItemInfo
 from .ShareLinkExtractCodeResponse import ShareLinkExtractCodeResponse
 from .TemplateResponse import TemplateResponse
 from .UpdateShareLinkResponse import UpdateShareLinkResponse
+from .UsersVipInfoResponse import UsersVipInfoResponse

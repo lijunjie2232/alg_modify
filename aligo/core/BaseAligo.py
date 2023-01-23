@@ -4,8 +4,7 @@ import logging
 import subprocess
 import traceback
 from dataclasses import asdict, is_dataclass
-from typing import Generic, List, Iterator, Dict, Callable
-from typing import Union, Tuple
+from typing import Generic, List, Iterator, Dict, Callable, Union, Tuple, Type
 
 import requests
 
@@ -31,6 +30,9 @@ class BaseAligo:
             proxies: Dict = None,
             port: int = None,
             email: Tuple[str, str] = None,
+            request_failed_delay: float = 3,
+            requests_timeout: float = None,
+            login_timeout: float = None,
     ):
         """
         BaseAligo
@@ -44,6 +46,9 @@ class BaseAligo:
         :param email: (可选) 发送扫码登录邮件 ("接收邮件的邮箱地址", "防伪字符串"). 提供此值时，将不再弹出或打印二维码
             关于防伪字符串: 为了方便大家使用, aligo 自带公开邮箱, 省去邮箱配置的麻烦.
                         所以收到登录邮件后, 一定要对比确认防伪字符串和你设置一致才可扫码登录, 否则将导致: 包括但不限于云盘文件泄露.
+        :param request_failed_delay: 请求失败后，延迟时间，单位：秒
+        :param requests_timeout: same as requests timeout
+        :param login_timeout: 登录超时时间，单位：秒
         """
         self._auth: Auth = Auth(  # type: ignore
             name=name,
@@ -53,6 +58,9 @@ class BaseAligo:
             proxies=proxies,
             port=port,
             email=email,
+            request_failed_delay=request_failed_delay,
+            requests_timeout=requests_timeout,
+            login_timeout=login_timeout,
         )
         # 因为 self._auth.session 没有被重新赋值, 所以可以这么用
         self._session: requests.Session = self._auth.session
@@ -78,6 +86,7 @@ class BaseAligo:
             path: str,
             host: str = API_HOST,
             body: Union[DataType, Dict] = None,
+            headers: dict = None,
             ignore_auth: bool = False
     ) -> requests.Response:
         """统一处理数据类型和 drive_id"""
@@ -90,7 +99,7 @@ class BaseAligo:
             # 如果存在 attr drive_id 并且它是 None，并将 default_drive_id 设置为它
             body['drive_id'] = self.default_drive_id
 
-        return self._auth.post(path=path, host=host, body=body, ignore_auth=ignore_auth)
+        return self._auth.post(path=path, host=host, body=body, headers=headers, ignore_auth=ignore_auth)
 
     @property
     def default_drive_id(self):
@@ -143,7 +152,9 @@ class BaseAligo:
         self._auth.log.warning(f'{response.status_code} {response.text[:200]}')
         return Null(response)
 
-    def _list_file(self, path: str, body: Union[DataClass, Dict], resp_type: Generic[DataType]) -> Iterator[DataType]:
+    def _list_file(
+            self, path: str, body: Union[DataClass, Dict],
+            resp_type: Generic[DataType], headers: dict = None) -> Iterator[DataType]:
         """
         枚举文件: 用于统一处理 1.文件列表 2.搜索文件列表 3.收藏列表 4.回收站列表
         :param path: [str] 批量处理的路径
@@ -158,7 +169,7 @@ class BaseAligo:
         >>> if isinstance(result[-1], Null):
         >>>     print('请求失败')
         """
-        response = self._post(path, body=body)
+        response = self._post(path, body=body, headers=headers)
         file_list = self._result(response, resp_type)
         if isinstance(file_list, Null):
             yield file_list
@@ -169,7 +180,7 @@ class BaseAligo:
                 body['marker'] = file_list.next_marker
             else:
                 body.marker = file_list.next_marker
-            yield from self._list_file(path=path, body=body, resp_type=resp_type)
+            yield from self._list_file(path=path, body=body, resp_type=resp_type, headers=headers)
 
     def _core_get_file(self, body: GetFileRequest) -> BaseFile:
         """获取文件信息, 其他类中可能会用到, 所以放到基类中"""
@@ -193,7 +204,7 @@ class BaseAligo:
             rt.append(ll[i:i + n])
         return rt
 
-    def batch_request(self, body: BatchRequest, body_type: DataType) -> Iterator[BatchSubResponse[DataType]]:
+    def batch_request(self, body: BatchRequest, body_type: Type[DataType]) -> Iterator[BatchSubResponse[DataType]]:
         """
         批量请求：官方最大支持 100 个请求，所以这里按照 100 个一组进行分组，然后分别请求，使用时无需关注这个。
         :param body:[BatchRequest] 批量请求的参数
@@ -226,7 +237,7 @@ class BaseAligo:
                 return
 
             for batch in response.json()['responses']:
-                i = BatchSubResponse(**batch)
+                i = DataClass.fill_attrs(BatchSubResponse, batch)
                 if i.body:
                     try:
                         # 不是都会成功
@@ -236,7 +247,7 @@ class BaseAligo:
                         #                   can't update, file_id 609887cca951bf4feca54c6ebd0a91a03b826949"
                         # }
                         # status 409
-                        i.body = body_type(**i.body)
+                        i.body = DataClass.fill_attrs(body_type, i.body)
                     except TypeError:
                         # self._auth.log.warning(i)
                         pass
