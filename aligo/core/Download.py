@@ -3,13 +3,18 @@ import os
 import re
 from typing import Iterator, List
 
-from tqdm import tqdm
+# from tqdm import tqdm
 
 from aligo.core import *
 from aligo.core.Config import *
 from aligo.request import *
 from aligo.response import *
 from aligo.types import *
+
+if CheckEnv() == 'jupyter':
+    from tqdm.notebook import tqdm
+else:
+    from tqdm import tqdm
 
 
 class Download(BaseAligo):

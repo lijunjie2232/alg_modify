@@ -6,7 +6,7 @@ import os
 from dataclasses import asdict
 from typing import Union, List, Callable
 
-from tqdm import tqdm
+# from tqdm import tqdm
 
 from aligo.core import *
 from aligo.core.Config import *
@@ -14,6 +14,11 @@ from aligo.request import *
 from aligo.response import *
 from aligo.types import *
 from aligo.types.Enum import *
+
+if CheckEnv() == 'jupyter':
+    from tqdm.notebook import tqdm
+else:
+    from tqdm import tqdm
 
 
 class Create(BaseAligo):
